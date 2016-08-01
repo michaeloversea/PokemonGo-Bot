@@ -99,7 +99,16 @@ class SeenFortWorker(object):
                         format_time((pokestop_cooldown / 1000) -
                                     seconds_since_epoch)))
 
-                if not items_awarded and not experience_awarded and not pokestop_cooldown:
+                # resolve the softbanned issue - Min
+                unlock_counter = 1
+                while (not items_awarded and not experience_awarded and not pokestop_cooldown):
+                    logger.log("[!] You\'re softbanned, trying to resolve this issue... attemp: {}".format(unlock_counter), 'red')
+                    unlock_counter += 1
+                    response_dict = self.api.call()
+                    spin_details = response_dict['responses']['FORT_SEARCH']
+                    sleep(2)
+                    '''
+                    # original code segment
                     message = (
                         'Stopped at Pokestop and did not find experience, items '
                         'or information about the stop cooldown. You are '
@@ -108,6 +117,7 @@ class SeenFortWorker(object):
                         'PokeStops you are indeed softbanned. Please try again '
                         'in a few hours.')
                     raise RuntimeError(message)
+                    '''
             elif spin_details['result'] == 2:
                 logger.log("[#] Pokestop out of range")
             elif spin_details['result'] == 3:
